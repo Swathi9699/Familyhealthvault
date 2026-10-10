@@ -1,0 +1,155 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User account information and system profile",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "email"]
+    },
+    "Household": {
+      "title": "Household",
+      "description": "Family health vault household container",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "primaryContactPhone": { "type": "string" },
+        "emergencyNotes": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "ownerId"]
+    },
+    "FamilyMember": {
+      "title": "FamilyMember",
+      "description": "Individual health profile in the household vault",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "age": { "type": "number" },
+        "bloodType": { "type": "string" },
+        "allergies": { "type": "array" },
+        "chronicConditions": { "type": "array" },
+        "primaryPhysician": { "type": "string" },
+        "physicianPhone": { "type": "string" },
+        "emergencyContactName": { "type": "string" },
+        "emergencyContactPhone": { "type": "string" },
+        "emergencyContactRelation": { "type": "string" },
+        "preferredHospital": { "type": "string" },
+        "notes": { "type": "string" },
+        "avatarColor": { "type": "string" }
+      },
+      "required": ["id", "name", "role", "bloodType"]
+    },
+    "Medication": {
+      "title": "Medication",
+      "description": "Tracked medication and prescription routine",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "dosage": { "type": "string" },
+        "frequency": { "type": "string" },
+        "memberId": { "type": "string" },
+        "familyMemberName": { "type": "string" },
+        "instructions": { "type": "string" },
+        "refillDaysLeft": { "type": "number" },
+        "status": { "type": "string" },
+        "takenToday": { "type": "boolean" },
+        "reminderEnabled": { "type": "boolean" },
+        "reminderTimes": { "type": "array" }
+      },
+      "required": ["id", "name", "dosage", "memberId"]
+    },
+    "Appointment": {
+      "title": "Appointment",
+      "description": "Scheduled clinic or specialist visit",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "provider": { "type": "string" },
+        "specialty": { "type": "string" },
+        "memberId": { "type": "string" },
+        "familyMemberName": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "location": { "type": "string" },
+        "type": { "type": "string" },
+        "completed": { "type": "boolean" }
+      },
+      "required": ["id", "provider", "memberId", "date"]
+    },
+    "HealthDocument": {
+      "title": "HealthDocument",
+      "description": "Archived lab report, vaccine record, or clinical note",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "memberId": { "type": "string" },
+        "familyMemberName": { "type": "string" },
+        "date": { "type": "string" },
+        "provider": { "type": "string" },
+        "fileType": { "type": "string" },
+        "size": { "type": "string" }
+      },
+      "required": ["id", "title", "category", "memberId"]
+    },
+    "DoctorVisitSummary": {
+      "title": "DoctorVisitSummary",
+      "description": "Pre-visit briefing agenda and doctor visit notes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "memberId": { "type": "string" },
+        "familyMemberName": { "type": "string" },
+        "visitDate": { "type": "string" },
+        "doctorName": { "type": "string" },
+        "chiefComplaint": { "type": "string" },
+        "symptoms": { "type": "array" },
+        "questionsForDoctor": { "type": "array" }
+      },
+      "required": ["id", "memberId", "doctorName", "chiefComplaint"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Individual user authentication profiles"
+    },
+    "/households/{householdId}": {
+      "schema": "Household",
+      "description": "Family household vault metadata"
+    },
+    "/households/{householdId}/members/{memberId}": {
+      "schema": "FamilyMember",
+      "description": "Family member health records in the vault"
+    },
+    "/households/{householdId}/medications/{medicationId}": {
+      "schema": "Medication",
+      "description": "Prescriptions and daily medicines"
+    },
+    "/households/{householdId}/appointments/{appointmentId}": {
+      "schema": "Appointment",
+      "description": "Household clinic visits and checkups"
+    },
+    "/households/{householdId}/documents/{documentId}": {
+      "schema": "HealthDocument",
+      "description": "Uploaded and logged health records"
+    },
+    "/households/{householdId}/visitSummaries/{summaryId}": {
+      "schema": "DoctorVisitSummary",
+      "description": "Doctor visit preparation summaries"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Family Health Vault AI",
+  "description": "One simple place to organize your family's health information.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
