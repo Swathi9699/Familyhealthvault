@@ -1,0 +1,14 @@
+node_modules
+.git
+.gitignore
+.env
+.env.local
+.env.*.local
+.aistudio
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+dist
+server.js

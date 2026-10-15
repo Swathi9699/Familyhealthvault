@@ -37,6 +37,7 @@ export default function DocumentsPage() {
   const [memberFilter, setMemberFilter] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState<HealthDocument | null>(null);
+  const [downloadNotice, setDownloadNotice] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -322,6 +323,18 @@ export default function DocumentsPage() {
                 </div>
               )}
 
+              {downloadNotice && (
+                <div className="p-2.5 rounded-lg bg-teal-50 border border-teal-200 text-teal-800 text-xs flex items-center justify-between">
+                  <span>{downloadNotice}</span>
+                  <button
+                    onClick={() => setDownloadNotice(null)}
+                    className="text-teal-600 hover:text-teal-800 text-[11px] font-medium ml-2"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              )}
+
               {selectedDoc.tags && selectedDoc.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 pt-2">
                   {selectedDoc.tags.map((t, idx) => (
@@ -337,14 +350,21 @@ export default function DocumentsPage() {
             </div>
 
             <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-              <Button variant="outline" size="sm" onClick={() => setSelectedDoc(null)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedDoc(null);
+                  setDownloadNotice(null);
+                }}
+              >
                 Close
               </Button>
               <Button
                 variant="primary"
                 size="sm"
                 onClick={() => {
-                  alert(`Downloading ${selectedDoc.title} (${selectedDoc.fileType}). In Phase 2, this securely retrieves the PDF from cloud storage.`);
+                  setDownloadNotice(`Simulated download for "${selectedDoc.title}" (${selectedDoc.fileType}). Synthetic demo report verified.`);
                 }}
               >
                 <Download className="w-3.5 h-3.5 mr-1" />

@@ -17,6 +17,8 @@ import {
   Trash2,
   FileText,
   User,
+  Sparkles,
+  Loader2,
 } from 'lucide-react';
 
 export default function DoctorSummaryPage() {
@@ -25,6 +27,9 @@ export default function DoctorSummaryPage() {
   const [selectedMemberId, setSelectedMemberId] = useState<string>(members[0]?.id || '');
   const [isCreating, setIsCreating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
+  const [aiBriefing, setAiBriefing] = useState<string | null>(null);
+  const [aiSource, setAiSource] = useState<string | null>(null);
 
   // New Summary Form State
   const [formData, setFormData] = useState({
@@ -42,6 +47,36 @@ export default function DoctorSummaryPage() {
   const memberMeds = selectedMember
     ? medications.filter((m) => m.memberId === selectedMember.id && m.status === 'active')
     : [];
+
+  const handleGenerateAiBriefing = async () => {
+    if (!selectedMember) return;
+    setIsAiGenerating(true);
+    try {
+      const res = await fetch('/api/ai/clinical-brief', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          memberName: selectedMember.name,
+          age: selectedMember.age,
+          allergies: selectedMember.allergies,
+          chronicConditions: selectedMember.chronicConditions,
+          medications: memberMeds.map((m) => `${m.name} (${m.dosage}, ${m.frequency})`),
+          chiefComplaint: formData.chiefComplaint || 'Pre-visit clinical preparation & health record check',
+          symptoms: formData.symptoms,
+          visitNotes: formData.notes,
+        }),
+      });
+      const data = await res.json();
+      if (data?.briefing) {
+        setAiBriefing(data.briefing);
+        setAiSource(data.source === 'gemini-server-side' ? 'Gemini 2.5 Flash (Server Secret)' : 'Synthetic Clinical Engine (Demo)');
+      }
+    } catch (err) {
+      console.warn('AI briefing fetch error:', err);
+    } finally {
+      setIsAiGenerating(false);
+    }
+  };
 
   const memberSummaries = visitSummaries.filter(
     (v) => !selectedMember || v.memberId === selectedMember.id
@@ -265,13 +300,71 @@ Visit Notes: ${summary.notes || 'None'}`;
               />
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
-              <Button type="button" variant="outline" onClick={() => setIsCreating(false)}>
-                Cancel
+            {aiBriefing && (
+              <div className="p-4 rounded-xl bg-teal-50/70 border border-teal-200 text-xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 font-semibold text-teal-900">
+                    <Sparkles className="w-4 h-4 text-teal-600" />
+                    <span>AI Clinical Assistant Insights</span>
+                  </div>
+                  <span className="text-[10px] font-mono bg-white px-2 py-0.5 rounded border border-teal-200 text-teal-700">
+                    {aiSource || 'AI Engine'}
+                  </span>
+                </div>
+                <div className="text-slate-800 whitespace-pre-line leading-relaxed font-sans bg-white p-3 rounded-lg border border-teal-100 max-h-56 overflow-y-auto">
+                  {aiBriefing}
+                </div>
+                <div className="flex items-center justify-end gap-2 pt-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs text-teal-800"
+                    onClick={() => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        questions: prev.questions
+                          ? `${prev.questions}\n• Review dosage adjustments and upcoming milestones\n• Discuss seasonal prophylaxis and action plan`
+                          : '• Review dosage adjustments and upcoming milestones\n• Discuss seasonal prophylaxis and action plan',
+                      }));
+                    }}
+                  >
+                    + Insert Questions into Form
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleGenerateAiBriefing}
+                disabled={isAiGenerating}
+                className="text-teal-700 border-teal-200 hover:bg-teal-50"
+              >
+                {isAiGenerating ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    Generating Clinical Brief...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5 mr-1.5 text-teal-600" />
+                    AI Clinical Suggestions
+                  </>
+                )}
               </Button>
-              <Button type="submit" variant="primary">
-                Save Visit Sheet
-              </Button>
+
+              <div className="flex items-center gap-2">
+                <Button type="button" variant="outline" onClick={() => setIsCreating(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" variant="primary">
+                  Save Visit Sheet
+                </Button>
+              </div>
             </div>
           </form>
         </Card>
